@@ -6,7 +6,7 @@ from error_response import ValidationErrorResponse, ErrorResponse
 from calcular import calcular
 
 app = Flask(__name__)
-app.config['PROPAGATE_EXCEPTIONS'] = True
+# app.config['PROPAGATE_EXCEPTIONS'] = True
 
 api = Api(app)
 CORS(app)
@@ -97,4 +97,4 @@ class Calcular(Resource):
 api.add_resource(Calcular, "/calcular")
 
 if __name__ == "__main__":
-    app.run(debug=False)
+    app.run(debug=True)
