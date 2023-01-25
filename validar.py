@@ -50,6 +50,8 @@ def validar_valores(request_body):
         if float(valor) > 1000:
             if chave == "cateto_a" or chave == "cateto_b":
                 value_errors["cateto"] = "valor deve ser menor que 1000"
+            else:
+                value_errors["hipotenusa"] = "valor deve ser menor que 1000"
 
     if len(value_errors) > 0:
         e = ValueError()

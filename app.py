@@ -1,11 +1,13 @@
 from flask import Flask, request, make_response, jsonify
-from flask_restful import Api, Resource
+from flask_restful import Api, Resource, abort
 from flask_cors import CORS
 
 from error_response import ValidationErrorResponse, ErrorResponse
 from calcular import calcular
 
 app = Flask(__name__)
+app.config['PROPAGATE_EXCEPTIONS'] = True
+
 api = Api(app)
 CORS(app)
 
@@ -20,8 +22,10 @@ def handle_exception(error):
     :return: lista com um dicionário em JSON
     """
 
-    list_errors = [ErrorResponse(400, error.error).to_dict()]
-    return jsonify(list_errors), 400
+    if hasattr(error, 'error'):
+        list_errors = [ErrorResponse(400, error.error).to_dict()]
+        return jsonify(list_errors), 400
+    return jsonify({"message": "Internal Server Error"}), 500
 
 
 @app.errorhandler(TypeError)
@@ -34,10 +38,12 @@ def handle_type_error(error):
     :return: lista de dicionários em JSON
     """
 
-    list_errors = []
-    for key, type_error in error.error.items():
-        list_errors.append(ValidationErrorResponse(key, type_error).to_dict())
-    return jsonify(list_errors), 400
+    if hasattr(error, 'error'):
+        list_errors = []
+        for key, type_error in error.error.items():
+            list_errors.append(ValidationErrorResponse(key, type_error).to_dict())
+        return jsonify(list_errors), 400
+    return jsonify({"message": "Internal Server Error"}), 500
 
 
 @app.errorhandler(ValueError)
@@ -50,10 +56,12 @@ def handle_value_error(error):
     :return: lista de dicionários em JSON
     """
 
-    list_errors = []
-    for key, value_error in error.error.items():
-        list_errors.append(ValidationErrorResponse(key, value_error).to_dict())
-    return jsonify(list_errors), 400
+    if hasattr(error, 'error'):
+        list_errors = []
+        for key, value_error in error.error.items():
+            list_errors.append(ValidationErrorResponse(key, value_error).to_dict())
+        return jsonify(list_errors), 400
+    return jsonify({"message": "Internal Server Error"}), 500
 
 
 @app.errorhandler(NameError)
@@ -66,10 +74,12 @@ def handle_name_error(error):
     :return: lista de dicionários em JSON
     """
 
-    list_errors = []
-    for name_error in error.error:
-        list_errors.append(ValidationErrorResponse(name_error, "campo não encontrado").to_dict())
-    return jsonify(list_errors), 400
+    if hasattr(error, 'error'):
+        list_errors = []
+        for name_error in error.error:
+            list_errors.append(ValidationErrorResponse(name_error, "campo não encontrado").to_dict())
+        return jsonify(list_errors), 400
+    return jsonify({"message": "Internal Server Error"}), 500
 
 
 class Calcular(Resource):
@@ -81,10 +91,10 @@ class Calcular(Resource):
         if request.is_json:
             return make_response(calcular(request.get_json()))
 
-        return make_response("Preencha o corpo da requisição em formato json para obter sucesso", 403)
+        abort(400, message="Preencha o corpo da requisição em formato json para obter sucesso")
 
 
 api.add_resource(Calcular, "/calcular")
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", debug=True)
+    app.run(debug=False)
