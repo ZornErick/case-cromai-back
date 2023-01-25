@@ -7,6 +7,7 @@ Calculadora capaz de calcular a relação entre os lados de um triângulo retân
 * **Docker**
 
 ### ⚙️ Executando via Docker
+Na root do projeto, digitar os comandos:
 ```
 docker build -t case-cromai-back .
 
@@ -14,6 +15,7 @@ docker run -d -p 5000:5000 case-cromai-back
 ```
 
 ### ⚙️ Executando via Python
+Na root do projeto, digitar os comandos:
 ```
 pip install flask
 
